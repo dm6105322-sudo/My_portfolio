@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin panel</title><link rel="stylesheet" href="style.css">
+<style>
+#login{max-width:360px;margin:15vh auto;padding:1.5rem}
+#app{display:none;grid-template-columns:210px minmax(0,1fr);min-height:100vh}
+aside{padding:1rem;border-right:1px solid color-mix(in srgb,var(--a) 30%,transparent);position:sticky;top:0;height:100vh}
+aside button{display:block;width:100%;text-align:left;margin-bottom:.4rem;padding:.55rem .8rem;background:none;border:1px solid transparent;border-radius:8px;color:var(--tx);font:inherit;cursor:pointer}
+aside button.on,aside button:hover{border-color:var(--a);background:color-mix(in srgb,var(--a) 14%,transparent)}
+main{padding:1.5rem;max-width:900px}.tab{display:none}.tab.on{display:block}
+h2{margin-bottom:1rem}.pad{padding:1.2rem;margin-bottom:1.2rem}
+.item{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.8rem 0;border-bottom:1px solid #fff2;flex-wrap:wrap}
+.item img{width:60px;height:60px;object-fit:cover;border-radius:8px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.badge{background:var(--b);color:#000;border-radius:99px;padding:0 .5rem;font-size:.75rem;margin-left:.3rem}
+#toast{position:fixed;bottom:1rem;right:1rem;padding:.8rem 1.1rem;border-radius:10px;background:#111;border:1px solid var(--a);display:none;z-index:9;max-width:80vw}
+.unread{border-left:3px solid var(--b);padding-left:.6rem}
+.seg{display:inline-flex;border:1px solid color-mix(in srgb,var(--a) 40%,transparent);border-radius:8px;overflow:hidden}.seg button{background:none;border:0;color:var(--tx);padding:.45rem .9rem;font:inherit;cursor:pointer}.seg button.on{background:color-mix(in srgb,var(--a) 28%,transparent)}
+main{min-width:0}img{max-width:100%}
+@media(max-width:1024px){#app{grid-template-columns:170px minmax(0,1fr)}main{padding:1.1rem}}
+@media(max-width:760px){#app{grid-template-columns:minmax(0,1fr)}
+ aside{position:sticky;top:0;z-index:6;height:auto;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:.3rem;padding:.5rem;background:var(--bg);border-right:0;border-bottom:1px solid color-mix(in srgb,var(--a) 30%,transparent);-webkit-overflow-scrolling:touch}
+ aside h3{display:none}aside button{width:auto;margin:0;white-space:nowrap;flex:0 0 auto}
+ main{padding:.9rem}.cols{grid-template-columns:1fr}.cols3{grid-template-columns:1fr 1fr}.item>div:last-child{width:100%}#login{margin:8vh 1rem;max-width:none}.box.pad{padding:1rem}}
+@media(max-width:380px){.cols3{grid-template-columns:1fr}}
+</style></head><body>
+<form id="login" class="box"><h2 class="glow">Admin login</h2><label>Username</label><input id="lu" value="admin" autocomplete="username"><label>Password</label><input id="lp" type="password" autocomplete="current-password" required>
+<br><button class="btn" style="margin-top:1rem">Log in</button> <a href="/" class="muted">View site</a><p id="lerr" style="color:#ff4d6d;margin-top:.7rem"></p><p id="hb" style="color:#ffc400;margin-top:.5rem;font-size:.9rem"></p></form>
+<div id="app"><aside><h3 class="glow" style="margin-bottom:1rem">Admin</h3>
+<button data-t="dash" class="on">Dashboard</button><button data-t="profile">Profile and photo</button><button data-t="theme">Theme</button><button data-t="projects">Projects</button><button data-t="certs">Certificates</button><button data-t="an">Analytics</button>
+<button data-t="msgs">Messages <span id="mb"></span></button><button data-t="fb">Feedback <span id="fbb"></span></button><button data-t="acct">Account</button>
+<button onclick="location.href='/'">View site</button><button id="out">Log out</button></aside>
+<main>
+<div class="tab on" id="t-dash"><h2 class="glow">Dashboard</h2>
+<div class="box pad" style="display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap"><img id="dpImg" alt="" style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:2px solid var(--a);background:#0003;box-shadow:0 0 calc(24px*var(--g)) var(--a)">
+<form id="dp" style="flex:1;min-width:230px"><h3>Profile photo</h3><p class="muted">Choose a JPG, PNG, GIF or WEBP (max 4 MB). It shows on your public portfolio.</p>
+<input type="file" id="dpFile" name="photo" accept="image/*" required style="margin:.6rem 0"><button class="btn">Upload photo</button> <button type="button" class="btn danger" id="dpDel">Remove photo</button></form></div>
+<div class="box pad"><h3>Quick actions</h3><div style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.7rem 0"><button class="btn" onclick="goTab('projects')">+ Add project</button><button class="btn" onclick="goTab('certs')">+ Add certificate</button></div></div>
+<div class="cols3" id="stats"></div><br>
+<div class="box pad"><h3>LeetCode progress</h3><p class="muted">Enter your username to fetch Easy, Medium and Hard counts. It refreshes every 10 minutes.</p>
+<label>LeetCode username</label><input id="lcu"><div style="margin-top:.8rem;display:flex;gap:.6rem;flex-wrap:wrap"><button class="btn" id="lcSave">Save and fetch</button><button class="btn alt" id="lcRef">Refresh now</button></div>
+<p id="lcStat" style="margin-top:.8rem"></p>
+<details style="margin-top:1rem"><summary>Enter counts manually (if LeetCode is unreachable)</summary><div class="cols3">
+<div><label>Easy solved</label><input type="number" min="0" id="me"></div><div><label>Medium solved</label><input type="number" min="0" id="mm"></div><div><label>Hard solved</label><input type="number" min="0" id="mh"></div></div>
+<button class="btn sm" style="margin-top:.8rem" id="lcMan">Save counts</button></details></div></div>
+
+<div class="tab" id="t-profile"><h2 class="glow">Profile and photo</h2><form class="box pad" id="pf">
+<label>Profile photo</label><input type="file" name="photo" accept="image/*"><img id="pp" style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin-top:.6rem;display:none" alt="">
+<label>Name</label><input name="name"><label>Title</label><input name="title"><label>About</label><textarea name="bio"></textarea>
+<div class="cols"><div><label>Email</label><input name="email" type="email"></div><div><label>Location</label><input name="location"></div>
+<div><label>GitHub profile URL</label><input name="github" placeholder="https://github.com/you"></div><div><label>LinkedIn URL</label><input name="linkedin" placeholder="https://linkedin.com/in/you"></div></div>
+<br><button class="btn" style="margin-top:.8rem">Save profile</button></form>
+<div class="box pad"><h3>Resume (PDF)</h3><p class="muted" id="rsStat"></p>
+<form id="rf"><input type="file" name="resume" accept="application/pdf,.pdf" required style="margin:.5rem 0"><button class="btn">Upload resume</button> <button type="button" class="btn danger" id="rsDel">Remove resume</button> <a class="btn alt" id="rsView" target="_blank" rel="noopener" style="display:none">Preview</a></form></div>
+</div>
+
+<div class="tab" id="t-theme"><h2 class="glow">Theme: glow, colors and font</h2><div class="box pad">
+<div class="cols"><div><label>Glow color</label><input type="color" id="c_accent"></div><div><label>Second glow color</label><input type="color" id="c_accent2"></div>
+<div><label>Background</label><input type="color" id="c_bg"></div><div><label>Text</label><input type="color" id="c_text"></div></div>
+<label>Font</label><select id="c_font"></select><label>Glow strength: <span id="gv"></span></label><input type="range" min="0" max="100" id="c_glow">
+<p style="margin-top:1rem" class="glow">Live preview text - see the glow and font change.</p>
+<button class="btn" style="margin-top:1rem" id="thSave">Save theme</button></div></div>
+
+<div class="tab" id="t-projects"><h2 class="glow">Projects</h2><form class="box pad" id="prf"><h3 id="prT">Add project</h3>
+<label>Title</label><input name="title" required><label>Description</label><textarea name="description"></textarea>
+<label>Technologies (comma separated)</label><input name="tech" placeholder="React, Node.js, MongoDB">
+<div class="cols"><div><label>GitHub repository URL</label><input name="github" placeholder="https://github.com/you/repo"></div><div><label>Live demo URL</label><input name="live" placeholder="https://..."></div></div>
+<label>Screenshot</label><input type="file" name="image" accept="image/*"><br><button class="btn" style="margin-top:.8rem">Save project</button> <button type="button" class="btn alt" id="prCancel" style="display:none;margin-top:.8rem">Cancel edit</button></form><div id="prList"></div></div>
+
+<div class="tab" id="t-certs"><h2 class="glow">Certificates</h2><form class="box pad" id="cf"><label>Title</label><input name="title" required>
+<div class="cols"><div><label>Issuer</label><input name="issuer"></div><div><label>Date</label><input name="date" placeholder="June 2026"></div></div>
+<label>Image or PDF</label><input type="file" name="file" accept="image/*,.pdf" required><br><button class="btn" style="margin-top:.8rem">Upload certificate</button></form><div id="cList"></div></div>
+
+<div class="tab" id="t-msgs"><h2 class="glow">Contact messages (live)</h2><div id="mList"></div></div>
+<div class="tab" id="t-fb"><h2 class="glow">Feedback (live)</h2><p class="muted">Approve feedback to show it on your site.</p><div id="fList"></div></div>
+<div class="tab" id="t-an"><h2 class="glow">Visitor analytics</h2>
+<p class="muted">Private to this admin panel. Visitors are counted by a random browser id; no IP addresses are stored. Dates use your device's time zone.</p>
+<div class="box pad"><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem" id="anPre"><button class="btn sm" data-d="7">7 days</button><button class="btn sm" data-d="30">30 days</button><button class="btn sm" data-d="90">3 months</button><button class="btn sm" data-d="365">12 months</button><button class="btn sm" data-d="m">This month</button></div>
+<div class="cols"><div><label>From date</label><input type="date" id="anFrom"></div><div><label>To date</label><input type="date" id="anTo"></div></div><button class="btn" id="anApply" style="margin-top:.8rem">Show</button></div>
+<div class="cols3" id="anStats" style="margin-bottom:1.2rem"></div>
+<div class="box pad"><div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:space-between;align-items:center"><h3>How many people visited</h3><div style="display:flex;gap:.6rem;flex-wrap:wrap">
+<div class="seg" id="segG"><button data-g="day" class="on">Day</button><button data-g="month">Month</button><button data-g="weekday">Weekday</button></div>
+<div class="seg" id="segT"><button data-ct="line" class="on">Line</button><button data-ct="bar">Bar</button><button data-ct="pie">Pie</button></div></div></div><div id="anMain" style="margin-top:1rem"></div></div>
+<div class="cols"><div class="box pad"><h3>Devices</h3><div id="anDev"></div></div><div class="box pad"><h3>Where visitors come from</h3><div id="anRef"></div></div></div>
+<div class="cols"><div class="box pad"><h3>Top projects opened</h3><div id="anProj"></div></div><div class="box pad"><h3>Recent activity</h3><div id="anRecent"></div></div></div></div>
+<div class="tab" id="t-acct"><h2 class="glow">Account: username and password</h2><form class="box pad" id="pw" style="max-width:440px">
+<p class="muted">Enter your current password to confirm. Fill the username, the password, or both. Leave a field as it is to keep it.</p>
+<label>Current password</label><input type="password" name="current" required autocomplete="current-password">
+<label>Username</label><input type="text" name="username" id="newUser" autocomplete="username" minlength="3" maxlength="40">
+<label>New password (6+ characters, optional)</label><input type="password" name="next" minlength="6" autocomplete="new-password">
+<br><button class="btn" style="margin-top:.8rem">Save changes</button></form></div>
+</main></div><div id="toast"></div>
+<script src="common.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let T = localStorage.getItem('tk'), D = null, editId = null, firstLoad = true, lastMsgs = 0;
+function toast(m, bad) { const t = $('#toast'); t.textContent = m; t.style.borderColor = bad ? '#ff4d6d' : 'var(--a)'; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 3500); }
+async function api(p, o = {}) {
+  o.headers = Object.assign({}, o.headers, T ? { Authorization: 'Bearer ' + T } : {});
+  if (o.json) { o.body = JSON.stringify(o.json); o.headers['Content-Type'] = 'application/json'; delete o.json; }
+  const r = await fetch('/api' + p, o); let j = {}; try { j = await r.json(); } catch (e) {}
+  if (r.status === 401 && p !== '/login') { logout(); throw new Error('Please log in again'); }
+  if (!r.ok) throw new Error(j.error || 'Request failed'); return j;
+}
+const run = async (fn, ok) => { try { await fn(); if (ok) toast(ok); } catch (e) { toast(e.message, true); } };
+function logout() { T = null; localStorage.removeItem('tk'); $('#app').style.display = 'none'; $('#login').style.display = 'block'; }
+$('#out').onclick = logout;
+$('#login').addEventListener('submit', async e => {
+  e.preventDefault(); $('#lerr').textContent = '';
+  try { const j = await api('/login', { method: 'POST', json: { username: $('#lu').value, password: $('#lp').value } }); T = j.token; localStorage.setItem('tk', T); start(); }
+  catch (err) { $('#lerr').textContent = err.message; }
+});
+document.querySelectorAll('aside [data-t]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('aside [data-t]').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 't-' + b.dataset.t));
+  if (b.dataset.t === 'an') loadAn().catch(e => toast(e.message, true));
+});
+async function start() {
+  $('#login').style.display = 'none'; $('#app').style.display = 'grid';
+  try { await load(); } catch (e) { return; }
+  if (!start.live) { start.live = true; live(() => { if (T) { load().catch(() => {}); if ($('#t-an').classList.contains('on')) loadAn(true).catch(() => {}); } }); }
+}
+async function load() {
+  D = await api('/admin/all'); applyTheme(D.settings); render();
+  const un = D.messages.filter(m => !m.read).length;
+  if (!firstLoad && D.messages.length > lastMsgs) toast('New message from ' + D.messages[0].name);
+  lastMsgs = D.messages.length; firstLoad = false;
+}
+function render() {
+  const un = D.messages.filter(m => !m.read).length, pf = D.feedback.filter(f => !f.approved).length;
+  $('#mb').innerHTML = un ? `<span class="badge">${un}</span>` : ''; $('#fbb').innerHTML = pf ? `<span class="badge">${pf}</span>` : '';
+  const L = D.leetcode, tot = L.easy.solved + L.medium.solved + L.hard.solved;
+  $('#stats').innerHTML = [['Projects', D.projects.length], ['Certificates', D.certificates.length], ['Unread messages', un], ['LeetCode solved', tot], ['Easy / Med / Hard', `${L.easy.solved}/${L.medium.solved}/${L.hard.solved}`], ['Feedback pending', pf]]
+    .map(x => `<div class="box pad" style="margin:0"><div class="muted">${x[0]}</div><div style="font-size:1.8rem" class="glow">${x[1]}</div></div>`).join('');
+  if (document.activeElement !== $('#lcu')) $('#lcu').value = L.username;
+  $('#lcStat').innerHTML = L.error ? `<span style="color:#ff4d6d">${esc(L.error)}</span>` : (L.updated ? 'Last updated ' + new Date(L.updated).toLocaleString() : '');
+  const f = $('#pf'), p = D.profile;
+  if (!f.dataset.init) { f.dataset.init = 1; ['name', 'title', 'bio', 'email', 'location', 'github', 'linkedin'].forEach(k => f.elements[k].value = p[k]); }
+  if (p.photo) { $('#pp').src = p.photo; $('#pp').style.display = 'block'; }
+  const di = $('#dpImg'); if (p.photo) { if (di.dataset.s !== p.photo) { di.dataset.s = p.photo; di.src = p.photo; } di.style.visibility = 'visible'; } else { di.removeAttribute('src'); di.dataset.s = ''; di.style.visibility = 'hidden'; }
+  if (!$('#c_font').options.length) $('#c_font').innerHTML = D.fonts.map(x => `<option>${esc(x)}</option>`).join('');
+  if (!render.th) { render.th = 1; ['accent', 'accent2', 'bg', 'text', 'font', 'glow'].forEach(k => $('#c_' + k).value = D.settings[k]); $('#gv').textContent = D.settings.glow; }
+  $('#rsStat').textContent = p.resume ? 'Resume uploaded. Visitors see a Download Resume button.' : 'No resume uploaded yet.';
+  $('#rsView').style.display = p.resume ? 'inline-block' : 'none'; if (p.resume) $('#rsView').href = p.resume;
+  if (!$('#newUser').dataset.init && document.activeElement !== $('#newUser')) { $('#newUser').value = D.username; $('#newUser').dataset.init = '1'; }
+  $('#prList').innerHTML = D.projects.map(x => `<div class="item"><div style="display:flex;gap:.8rem;align-items:center">${x.image ? `<img src="${esc(x.image)}" alt="">` : ''}<div><b>${esc(x.title)}</b><div class="muted">${esc(x.github)}</div></div></div>
+   <div><button class="btn sm" onclick="editP('${x.id}')">Edit</button> <button class="btn sm danger" onclick="del('/admin/projects/${x.id}')">Delete</button></div></div>`).join('') || '<p class="muted">No projects yet.</p>';
+  $('#cList').innerHTML = D.certificates.map(x => `<div class="item"><div style="display:flex;gap:.8rem;align-items:center">${x.pdf ? '<span class="chip">PDF</span>' : `<img src="${esc(x.file)}" alt="">`}<div><b>${esc(x.title)}</b><div class="muted">${esc(x.issuer)} ${esc(x.date)}</div></div></div>
+   <button class="btn sm danger" onclick="del('/admin/certificates/${x.id}')">Delete</button></div>`).join('') || '<p class="muted">No certificates yet.</p>';
+  $('#mList').innerHTML = D.messages.map(m => `<div class="item ${m.read ? '' : 'unread'}"><div style="max-width:560px"><b>${esc(m.name)}</b> &lt;<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>&gt; <span class="muted">${new Date(m.at).toLocaleString()}</span>
+   <p style="white-space:pre-line">${esc(m.message)}</p></div><div><button class="btn sm" onclick="patch('messages','${m.id}',{read:${!m.read}})">${m.read ? 'Mark unread' : 'Mark read'}</button> <button class="btn sm danger" onclick="del('/admin/messages/${m.id}')">Delete</button></div></div>`).join('') || '<p class="muted">No messages yet.</p>';
+  $('#fList').innerHTML = D.feedback.map(m => `<div class="item"><div style="max-width:560px"><b>${esc(m.name)}</b> ${esc(m.role)} <span style="color:#ffc400">${'\u2605'.repeat(m.rating)}</span> ${m.approved ? '<span class="chip">Shown</span>' : '<span class="chip">Pending</span>'}
+   <p>${esc(m.text)}</p></div><div><button class="btn sm" onclick="patch('feedback','${m.id}',{approved:${!m.approved}})">${m.approved ? 'Hide' : 'Approve'}</button> <button class="btn sm danger" onclick="del('/admin/feedback/${m.id}')">Delete</button></div></div>`).join('') || '<p class="muted">No feedback yet.</p>';
+}
+const del = p => { if (confirm('Delete this item?')) run(async () => { await api(p, { method: 'DELETE' }); await load(); }, 'Deleted'); };
+const patch = (k, id, j) => run(async () => { await api(`/admin/${k}/${id}`, { method: 'PATCH', json: j }); await load(); });
+$('#dpFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) { const di = $('#dpImg'); di.src = URL.createObjectURL(f); di.style.visibility = 'visible'; di.dataset.s = 'preview'; } });
+$('#dp').addEventListener('submit', e => { e.preventDefault(); run(async () => { await api('/admin/profile', { method: 'PUT', body: new FormData(e.target) }); e.target.reset(); const di = $('#dpImg'); di.dataset.s = ''; await load(); }, 'Photo uploaded'); });
+$('#dpDel').onclick = () => { if (confirm('Remove your profile photo?')) run(async () => { await api('/admin/photo', { method: 'DELETE' }); await load(); }, 'Photo removed'); };
+$('#pf').addEventListener('submit', e => { e.preventDefault(); run(async () => { await api('/admin/profile', { method: 'PUT', body: new FormData(e.target) }); e.target.elements.photo.value = ''; await load(); }, 'Profile saved'); });
+$('#prf').addEventListener('submit', e => { e.preventDefault(); const f = e.target;
+  run(async () => { await api('/admin/projects' + (editId ? '/' + editId : ''), { method: editId ? 'PUT' : 'POST', body: new FormData(f) }); resetP(); await load(); }, 'Project saved'); });
+function resetP() { editId = null; $('#prf').reset(); $('#prT').textContent = 'Add project'; $('#prCancel').style.display = 'none'; }
+$('#prCancel').onclick = resetP;
+function editP(id) { const x = D.projects.find(p => p.id === id), f = $('#prf'); editId = id; $('#prT').textContent = 'Edit project';
+  ['title', 'description', 'github', 'live'].forEach(k => f.elements[k].value = x[k]); f.elements.tech.value = x.tech.join(', '); $('#prCancel').style.display = 'inline-block'; f.scrollIntoView(); }
+$('#cf').addEventListener('submit', e => { e.preventDefault(); run(async () => { await api('/admin/certificates', { method: 'POST', body: new FormData(e.target) }); e.target.reset(); await load(); }, 'Certificate uploaded'); });
+['accent', 'accent2', 'bg', 'text', 'font', 'glow'].forEach(k => $('#c_' + k).addEventListener('input', () => { const s = {}; ['accent', 'accent2', 'bg', 'text', 'font', 'glow'].forEach(x => s[x] = $('#c_' + x).value); $('#gv').textContent = s.glow; applyTheme(s); }));
+$('#thSave').onclick = () => run(async () => { const s = {}; ['accent', 'accent2', 'bg', 'text', 'font', 'glow'].forEach(x => s[x] = $('#c_' + x).value); await api('/admin/settings', { method: 'PUT', json: s }); }, 'Theme saved');
+$('#lcSave').onclick = () => run(async () => { await api('/admin/leetcode', { method: 'PUT', json: { username: $('#lcu').value } }); await load(); }, 'LeetCode saved');
+$('#lcRef').onclick = () => run(async () => { await api('/admin/leetcode/refresh', { method: 'POST' }); await load(); }, 'Refreshed');
+$('#lcMan').onclick = () => run(async () => { const g = i => ({ solved: $(i).value || 0, total: 0 });
+  const keep = k => D.leetcode[k].total; await api('/admin/leetcode', { method: 'PUT', json: { username: $('#lcu').value, manual: { easy: { solved: $('#me').value || 0, total: keep('easy') }, medium: { solved: $('#mm').value || 0, total: keep('medium') }, hard: { solved: $('#mh').value || 0, total: keep('hard') } } } }); await load(); }, 'Counts saved');
+$('#rf').addEventListener('submit', e => { e.preventDefault(); run(async () => { await api('/admin/resume', { method: 'PUT', body: new FormData(e.target) }); e.target.reset(); await load(); }, 'Resume uploaded'); });
+$('#rsDel').onclick = () => { if (confirm('Remove your resume?')) run(async () => { await api('/admin/resume', { method: 'DELETE' }); await load(); }, 'Resume removed'); };
+function goTab(n) { document.querySelector('aside [data-t="' + n + '"]').click(); window.scrollTo(0, 0); }
+const PAL = ['#00e5ff', '#ff3df2', '#00e676', '#ffc400', '#ff4d6d', '#7c8cff', '#ff9f43', '#2ee6b6', '#c56cf0', '#8395a7'];
+let AN = null, anG = 'day', anT = 'line', anQ = '';
+const pad2 = n => String(n).padStart(2, '0'), iso = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+const dLabel = k => new Date(k + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+const mLabel = k => new Date(k + '-01T00:00:00').toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+function setRange(d) { const t = new Date(), f = new Date(); if (d === 'm') f.setDate(1); else f.setDate(t.getDate() - (d - 1)); $('#anFrom').value = iso(f); $('#anTo').value = iso(t); }
+document.querySelectorAll('#anPre [data-d]').forEach(b => b.onclick = () => { setRange(b.dataset.d === 'm' ? 'm' : +b.dataset.d); loadAn().catch(e => toast(e.message, true)); });
+$('#anApply').onclick = () => loadAn().catch(e => toast(e.message, true));
+const seg = (id, attr, set) => document.querySelectorAll(id + ' button').forEach(b => b.onclick = () => { set(b.dataset[attr]); document.querySelectorAll(id + ' button').forEach(x => x.classList.toggle('on', x === b)); drawMain(); });
+seg('#segG', 'g', v => anG = v); seg('#segT', 'ct', v => anT = v);
+
+function pie(items) {
+  items = items.filter(x => x.count > 0).sort((a, b) => b.count - a.count);
+  if (items.length > 8) { const rest = items.slice(8).reduce((s, x) => s + x.count, 0); items = items.slice(0, 8).concat([{ label: 'Others', count: rest }]); }
+  const tot = items.reduce((s, x) => s + x.count, 0);
+  if (!tot) return '<p class="muted">No visits in this period.</p>';
+  let ang = -Math.PI / 2, paths = '';
+  items.forEach((x, i) => {
+    const f = x.count / tot, col = PAL[i % PAL.length], tip = `<title>${esc(x.label)}: ${x.count} (${(f * 100).toFixed(1)}%)</title>`;
+    if (f > 0.9999) { paths += `<circle cx="100" cy="100" r="85" fill="${col}">${tip}</circle>`; return; }
+    const b = ang + f * 2 * Math.PI, p = a => (100 + 85 * Math.cos(a)).toFixed(2) + ' ' + (100 + 85 * Math.sin(a)).toFixed(2);
+    paths += `<path d="M100 100 L${p(ang)} A85 85 0 ${f > .5 ? 1 : 0} 1 ${p(b)} Z" fill="${col}" stroke="var(--bg)" stroke-width="2">${tip}</path>`; ang = b;
+  });
+  const legend = items.map((x, i) => `<div style="display:flex;gap:.5rem;align-items:center;margin:.25rem 0;font-size:.9rem"><span style="width:12px;height:12px;border-radius:3px;background:${PAL[i % PAL.length]};flex:none"></span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(x.label || 'Unknown')}</span><b>${x.count}</b><span class="muted">${(x.count / tot * 100).toFixed(0)}%</span></div>`).join('');
+  return `<div style="display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 200 200" style="width:190px;max-width:100%;flex:none" role="img" aria-label="Pie chart">${paths}</svg><div style="flex:1;min-width:150px">${legend}</div></div>`;
+}
+function chart(items, type) {
+  const W = 640, H = 240, L = 38, B = 28, T = 12, R = 10, n = items.length, max = Math.max(1, ...items.map(x => x.views));
+  const sw = (W - L - R) / n, cx = i => L + sw * (i + .5), y = v => H - B - v / max * (H - B - T);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Visitors chart">`;
+  [0, .5, 1].forEach(f => { const v = Math.round(max * f), yy = y(v); s += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="#fff" stroke-opacity=".12"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end" font-size="11" fill="currentColor" opacity=".7">${v}</text>`; });
+  if (type === 'bar') items.forEach((x, i) => { const bw = Math.max(1.5, sw * .7);
+    s += `<rect x="${cx(i) - bw / 2}" y="${y(x.views)}" width="${bw}" height="${H - B - y(x.views)}" rx="2" fill="${PAL[0]}"/><rect x="${cx(i) - bw / 4}" y="${y(x.unique)}" width="${bw / 2}" height="${H - B - y(x.unique)}" rx="1" fill="${PAL[1]}"/>`; });
+  else {
+    const pts = k => items.map((x, i) => cx(i).toFixed(1) + ',' + y(x[k]).toFixed(1));
+    s += `<polygon points="${cx(0)},${H - B} ${pts('views').join(' ')} ${cx(n - 1)},${H - B}" fill="${PAL[0]}" fill-opacity=".15"/><polyline points="${pts('views').join(' ')}" fill="none" stroke="${PAL[0]}" stroke-width="2.5" stroke-linejoin="round"/><polyline points="${pts('unique').join(' ')}" fill="none" stroke="${PAL[1]}" stroke-width="2" stroke-dasharray="5 4"/>`;
+    if (n <= 45) items.forEach((x, i) => { s += `<circle cx="${cx(i)}" cy="${y(x.views)}" r="3" fill="${PAL[0]}"/>`; });
+  }
+  const idx = n <= 8 ? items.map((_, i) => i) : [0, Math.floor((n - 1) / 2), n - 1];
+  idx.forEach(i => { s += `<text x="${cx(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".75">${esc(items[i].label)}</text>`; });
+  items.forEach((x, i) => { s += `<rect x="${L + sw * i}" y="${T}" width="${sw}" height="${H - B - T}" fill="transparent"><title>${esc(x.label)}: ${x.views} visits, ${x.unique} unique visitors</title></rect>`; });
+  return s + `</svg><div class="muted" style="font-size:.85rem;margin-top:.4rem"><span style="color:${PAL[0]}">&#9632;</span> Visits &nbsp; <span style="color:${PAL[1]}">&#9632;</span> Unique visitors</div>`;
+}
+function drawMain() {
+  if (!AN) return;
+  const src = anG === 'day' ? AN.daily.map(x => ({ ...x, label: dLabel(x.key) })) : anG === 'month' ? AN.monthly.map(x => ({ ...x, label: mLabel(x.key) })) : AN.weekday.map(x => ({ ...x, label: x.key }));
+  $('#anMain').innerHTML = anT === 'pie' ? pie(src.map(x => ({ label: x.label, count: x.views }))) : chart(src, anT);
+}
+const bars = (a, empty) => { const m = Math.max(1, ...a.map(x => x.count)); return a.length ? a.map(x => `<div style="margin:.5rem 0"><div style="display:flex;justify-content:space-between;gap:1rem"><span>${esc(x.label || 'Unknown')}</span><b>${x.count}</b></div><div style="height:7px;border-radius:9px;background:#fff1"><div style="height:100%;width:${x.count / m * 100}%;background:var(--b);border-radius:9px"></div></div></div>`).join('') : `<p class="muted">${empty}</p>`; };
+async function loadAn(poll) {
+  if (!poll || !anQ) { if (!$('#anFrom').value) setRange(30); anQ = `from=${$('#anFrom').value}&to=${$('#anTo').value}&tz=${-new Date().getTimezoneOffset() * 60}`; }
+  AN = await api('/admin/analytics?' + anQ);
+  if (!poll) { $('#anFrom').value = AN.from; $('#anTo').value = AN.to; }
+  $('#anStats').innerHTML = [['Visits in period', AN.views], ['Unique visitors', AN.unique], ['Visits today', AN.today.views], ['Project opens', AN.projectOpens], ['Resume downloads', AN.resume]].map(x => `<div class="box pad" style="margin:0"><div class="muted">${x[0]}</div><div style="font-size:1.8rem" class="glow">${x[1]}</div></div>`).join('');
+  drawMain();
+  $('#anDev').innerHTML = pie(AN.devices); $('#anRef').innerHTML = pie(AN.referrers); $('#anProj').innerHTML = bars(AN.topProjects, 'No project has been opened in this period.');
+  const kind = { view: 'Visited the site', project: 'Opened project', resume: 'Downloaded resume' };
+  $('#anRecent').innerHTML = AN.recent.length ? AN.recent.map(r => `<div style="margin:.5rem 0;font-size:.9rem">${kind[r.kind] || r.kind}${r.label && r.kind === 'project' ? ': <b>' + esc(r.label) + '</b>' : ''}<div class="muted">${new Date(r.at).toLocaleString()}, ${esc(r.device)}, ${esc(r.ref)}</div></div>`).join('') : '<p class="muted">No activity yet.</p>';
+}
+$('#pw').addEventListener('submit', e => { e.preventDefault(); run(async () => { await api('/admin/password', { method: 'PUT', json: Object.fromEntries(new FormData(e.target)) }); e.target.elements.current.value = ''; e.target.elements.next.value = ''; $('#newUser').dataset.init = ''; await load(); }, 'Account updated'); });
+if (location.protocol === 'file:') { $('#hb').textContent = 'Open this page through the server: run npm start, then visit http://localhost:3000/admin.html (do not double-click the file).'; }
+else fetch('/api/health').then(r => r.json()).then(h => { if (!h.ok) $('#hb').textContent = h.error; }).catch(() => { $('#hb').textContent = 'Cannot reach the backend. Locally: run npm start and open http://localhost:3000/admin.html. On Vercel or Netlify: check the deployment settings and environment variables, then open /api/health.'; });
+if (T) start();
+</script></body></html>

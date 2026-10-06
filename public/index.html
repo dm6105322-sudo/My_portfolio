@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Portfolio</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+nav{position:sticky;top:0;z-index:5;display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;padding:.8rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid color-mix(in srgb,var(--a) 25%,transparent)}
+nav a{text-decoration:none;color:var(--tx)}nav a:hover{color:var(--a)}
+section{max-width:1050px;margin:0 auto;padding:4rem 1.2rem}
+h2{font-size:1.9rem;margin-bottom:1.5rem}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:2.5rem;align-items:center}
+.photo{width:210px;height:210px;border-radius:50%;object-fit:cover;border:2px solid var(--a);box-shadow:0 0 calc(40px*var(--g)) var(--a);background:color-mix(in srgb,var(--tx) 8%,transparent)}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1.1}
+.hero h3{color:var(--b);font-weight:500;margin:.5rem 0 1rem;text-shadow:0 0 calc(16px*var(--g)) var(--b)}
+.links{margin-top:1.2rem;display:flex;gap:.7rem;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.2rem}
+.card{padding:1rem;cursor:pointer;transition:transform .15s}.card:hover{transform:translateY(-3px)}
+.card img{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:.7rem;background:#0003}
+.card h4{margin-bottom:.3rem}
+.lc{padding:1.5rem}.row{margin:1rem 0}.row .top{display:flex;justify-content:space-between;margin-bottom:.3rem}
+.bar{height:12px;border-radius:99px;background:color-mix(in srgb,var(--tx) 12%,transparent);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .8s}
+.easy i{background:#00e676;box-shadow:0 0 calc(14px*var(--g)) #00e676}.medium i{background:#ffc400;box-shadow:0 0 calc(14px*var(--g)) #ffc400}.hard i{background:#ff4d6d;box-shadow:0 0 calc(14px*var(--g)) #ff4d6d}
+.total{font-size:2.6rem;font-weight:700}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:1rem;z-index:20}
+.modal.on{display:flex}.modal .box{max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:1.5rem;background:var(--bg)}
+.modal img{width:100%;max-height:300px;object-fit:cover;border-radius:10px;margin-bottom:1rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.fb{padding:1rem}.stars{color:#ffc400}
+.msg{margin-top:.7rem;min-height:1.3rem}
+nav{justify-content:space-between;align-items:center;padding:.8rem max(1.2rem,calc((100% - 1050px)/2))}
+nav .menu{display:flex;gap:1.3rem;flex-wrap:wrap}
+.brand{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:700;font-size:1.15rem;letter-spacing:-.02em}
+.brand .tag{color:var(--a);text-shadow:0 0 calc(14px*var(--g)) var(--a)}
+footer{border-top:1px solid color-mix(in srgb,var(--a) 30%,transparent);margin-top:2rem;background:color-mix(in srgb,var(--tx) 3%,transparent)}
+.fgrid{max-width:1050px;margin:0 auto;padding:3rem 1.2rem 2rem;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:2rem}
+footer h5{font-size:.95rem;margin-bottom:.8rem}footer a{display:block;color:var(--tx);opacity:.75;text-decoration:none;margin-bottom:.4rem}footer a:hover{color:var(--a);opacity:1}
+footer p{opacity:.75;max-width:38ch}
+.fbar{max-width:1050px;margin:0 auto;padding:1rem 1.2rem 1.6rem;border-top:1px solid #fff1;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:.85rem;opacity:.7}
+.fbar a{display:inline;margin:0 0 0 1rem}
+@media(max-width:760px){.fgrid{grid-template-columns:1fr}nav{justify-content:center}}
+@media(max-width:760px){.hero,.two{grid-template-columns:1fr}.photo{margin:auto}.hero{text-align:center}.links{justify-content:center}}
+.meta{font-size:.82rem;opacity:.7;margin-top:.5rem}
+img{max-width:100%}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+@media(max-width:1024px){section{padding:3rem 1.2rem}.hero{gap:1.8rem}.photo{width:180px;height:180px}}
+@media(max-width:760px){section{padding:2.2rem 1rem}h2{font-size:1.5rem}.photo{width:150px;height:150px}
+ nav{padding:.5rem .8rem;gap:.4rem}nav .menu{width:100%;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:1rem;padding-bottom:.2rem;-webkit-overflow-scrolling:touch}nav .menu a{white-space:nowrap;padding:.3rem 0}
+ .lc{padding:1rem}.total{font-size:2rem}.fbar{flex-direction:column}.fbar a{margin:0 1rem 0 0}.modal .box{padding:1rem}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.links .btn{flex:1 1 auto;text-align:center}}
+</style></head><body>
+<nav><a class="brand" href="#home"><span class="tag">&lt;/&gt;</span> Portfolio</a><div class="menu"><a href="#home">Home</a><a href="#leetcode">LeetCode</a><a href="#projects">Projects</a><a href="#certs">Certificates</a><a href="#feedback">Feedback</a><a href="#contact">Contact</a></div></nav>
+<section id="home" class="hero"><div id="photoBox"></div><div id="heroText"></div></section>
+<section id="leetcode"><h2 class="glow">LeetCode progress</h2><div id="lc" class="box lc"></div></section>
+<section id="projects"><h2 class="glow">Projects</h2><div id="projGrid" class="grid"></div></section>
+<section id="certs"><h2 class="glow">Certificates</h2><div id="certGrid" class="grid"></div></section>
+<section id="feedback"><h2 class="glow">Feedback</h2><div class="two"><div id="fbList"></div>
+<form id="fbForm" class="box" style="padding:1.2rem"><h4>Leave feedback</h4>
+<label>Name</label><input name="name" required maxlength="80"><label>Role or company (optional)</label><input name="role" maxlength="80">
+<label>Rating</label><select name="rating"><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Okay</option><option value="2">2 - Poor</option><option value="1">1 - Bad</option></select>
+<label>Your feedback</label><textarea name="text" required maxlength="1000"></textarea><br><button class="btn" style="margin-top:.8rem">Send feedback</button><div class="msg" id="fbMsg"></div></form></div></section>
+<section id="contact"><h2 class="glow">Get in touch</h2><form id="ctForm" class="box" style="padding:1.2rem;max-width:620px">
+<label>Name</label><input name="name" required maxlength="80"><label>Email</label><input name="email" type="email" required maxlength="120">
+<label>Message</label><textarea name="message" required maxlength="3000"></textarea><br><button class="btn alt" style="margin-top:.8rem">Send message</button><div class="msg" id="ctMsg"></div></form></section>
+<footer id="foot"></footer>
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<script src="common.js"></script>
+<script>
+let D = null;
+const $ = s => document.querySelector(s);
+const link = (u, t, c) => u ? `<a class="btn ${c || ''}" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${t}</a>` : '';
+async function load() {
+  let t, j; try { t = await (await fetch('/api/public')).text(); j = JSON.parse(t); } catch (e) { j = null; }
+  const bn = $('#bk');
+  if (!j || j.error) {
+    if (!bn) { const b = document.createElement('div'); b.id = 'bk'; b.style.cssText = 'background:#ffc400;color:#000;padding:.6rem 1rem;text-align:center;font-size:.9rem'; b.innerHTML = 'The backend is not connected yet. Site owner: open <a href="/api/health" style="color:#000">/api/health</a> to see the reason.'; document.body.prepend(b); }
+    return;
+  }
+  if (bn) bn.remove();
+  if (t === load.last) return; load.last = t; D = j;
+  applyTheme(D.settings); render();
+}
+function render() {
+  const p = D.profile; document.title = p.name + ' | Portfolio';
+  $('#photoBox').innerHTML = p.photo ? `<img class="photo" src="${esc(p.photo)}" alt="${esc(p.name)}">` : `<div class="photo"></div>`;
+  $('#heroText').innerHTML = `<h1 class="glow">${esc(p.name)}</h1><h3>${esc(p.title)}</h3><p style="max-width:60ch;white-space:pre-line">${esc(p.bio)}</p>
+  <p class="muted" style="margin-top:.6rem">${esc(p.location)}</p><div class="links">
+  ${p.resume ? '<a class="btn alt" href="/api/resume">Download Resume</a>' : ''}${link(p.github, 'GitHub')}${link(p.linkedin, 'LinkedIn', 'alt')}${p.email ? `<a class="btn" href="mailto:${esc(p.email)}">Email</a>` : ''}</div>`;
+  $('#foot').innerHTML = `<div class="fgrid"><div><div class="brand" style="font-size:1.3rem"><span class="tag">&lt;/&gt;</span> ${esc(p.name)}</div><p style="margin-top:.7rem">${esc(p.title)}. Building clean, reliable and well-tested web applications.</p></div>
+   <div><h5>Explore</h5><a href="#projects">Projects</a><a href="#leetcode">LeetCode progress</a><a href="#certs">Certificates</a>${p.resume ? '<a href="/api/resume">Download resume</a>' : ''}<a href="#contact">Contact</a></div>
+   <div><h5>Connect</h5>${p.github ? `<a href="${esc(p.github)}" target="_blank" rel="noopener noreferrer">GitHub</a>` : ''}${p.linkedin ? `<a href="${esc(p.linkedin)}" target="_blank" rel="noopener noreferrer">LinkedIn</a>` : ''}${p.email ? `<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>` : ''}</div></div>
+   <div class="fbar"><span>\u00a9 ${new Date().getFullYear()} ${esc(p.name)}. All rights reserved.</span><span>Built with Node.js, Express and MySQL<a href="#home">Back to top</a><a href="admin.html">Admin</a></span></div>`;
+  const l = D.leetcode, tot = l.easy.solved + l.medium.solved + l.hard.solved;
+  const row = (k, n) => { const x = l[k], pc = x.total ? Math.min(100, x.solved / x.total * 100) : Math.min(100, x.solved);
+    return `<div class="row ${k}"><div class="top"><span>${n}</span><span>${x.solved}${x.total ? ' / ' + x.total : ''}</span></div><div class="bar"><i style="width:${pc}%"></i></div></div>`; };
+  $('#lc').innerHTML = (l.username || tot) ? `<div class="total glow">${tot} <span style="font-size:1rem" class="muted">problems solved${l.username ? ' by @' + esc(l.username) : ''}</span></div>
+   ${row('easy', 'Easy')}${row('medium', 'Medium')}${row('hard', 'Hard')}
+   <div class="muted" style="font-size:.82rem">${l.updated ? 'Updated ' + new Date(l.updated).toLocaleString() : ''}</div>` : '<p class="muted">LeetCode progress will appear here.</p>';
+  $('#projGrid').innerHTML = D.projects.length ? D.projects.map(x => `<div class="card box" tabindex="0" role="button" data-p="${x.id}">
+   ${x.image ? `<img src="${esc(x.image)}" alt="">` : ''}<h4>${esc(x.title)}</h4><p class="muted">${esc(x.description.slice(0, 90))}${x.description.length > 90 ? '...' : ''}</p>
+   <div style="margin-top:.5rem">${x.tech.map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div></div>`).join('') : '<p class="muted">Projects will appear here.</p>';
+  $('#certGrid').innerHTML = D.certificates.length ? D.certificates.map(c => `<a class="card box" style="text-decoration:none;color:inherit;display:block" href="${esc(c.file)}" target="_blank" rel="noopener">
+   ${c.pdf ? '<div class="muted" style="height:160px;display:grid;place-items:center">PDF certificate</div>' : `<img src="${esc(c.file)}" alt="${esc(c.title)}">`}
+   <h4>${esc(c.title)}</h4><p class="muted">${esc(c.issuer)} ${esc(c.date)}</p></a>`).join('') : '<p class="muted">Certificates will appear here.</p>';
+  $('#fbList').innerHTML = D.feedback.length ? D.feedback.map(f => `<div class="box fb" style="margin-bottom:.8rem"><div class="stars">${'\u2605'.repeat(f.rating)}${'\u2606'.repeat(5 - f.rating)}</div>
+   <p>${esc(f.text)}</p><p class="muted">${esc(f.name)}${f.role ? ', ' + esc(f.role) : ''}</p></div>`).join('') : '<p class="muted">No feedback yet. Be the first.</p>';
+}
+function openP(id) {
+  const x = D.projects.find(p => p.id === id); if (!x) return;
+  track('project', x.title);
+  $('#modalBox').innerHTML = `${x.image ? `<img src="${esc(x.image)}" alt="">` : ''}<h2 class="glow">${esc(x.title)}</h2>
+   <p style="white-space:pre-line;margin:.8rem 0">${esc(x.description)}</p>
+   <div class="links">${link(x.github, 'View GitHub repository')}${link(x.live, 'Live demo', 'alt')}<button class="btn danger" id="closeM">Close</button></div>`;
+  $('#modal').classList.add('on'); $('#closeM').onclick = closeM;
+}
+const closeM = () => $('#modal').classList.remove('on');
+$('#projGrid').addEventListener('click', e => { const c = e.target.closest('[data-p]'); if (c) openP(c.dataset.p); });
+$('#projGrid').addEventListener('keydown', e => { if (e.key === 'Enter') { const c = e.target.closest('[data-p]'); if (c) openP(c.dataset.p); } });
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeM(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeM(); });
+function sendForm(form, url, msgEl, ok) {
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); const m = $(msgEl); m.textContent = 'Sending...';
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      form.reset(); m.style.color = '#00e676'; m.textContent = ok;
+    } catch (err) { m.style.color = '#ff4d6d'; m.textContent = err.message || 'Something went wrong'; }
+  });
+}
+sendForm($('#ctForm'), '/api/messages', '#ctMsg', 'Message sent. Thank you!');
+sendForm($('#fbForm'), '/api/feedback', '#fbMsg', 'Thanks! Your feedback will appear after approval.');
+let vid; try { vid = localStorage.getItem('vid') || (Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem('vid', vid); } catch (e) { vid = 'anon' + Math.random().toString(36).slice(2); }
+function track(kind, label) { fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, label: label || '', vid, ref: document.referrer }), keepalive: true }).catch(() => {}); }
+try { if (!sessionStorage.getItem('seen')) { sessionStorage.setItem('seen', '1'); track('view'); } } catch (e) { track('view'); }
+load(); live(load);
+</script></body></html>
